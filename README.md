@@ -1,9 +1,9 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d0d0d,50:00d4ff,100:7c3aed&height=200&section=header&text=ReconNinja&fontSize=80&fontColor=ffffff&fontAlignY=38&desc=v3.2%20%E2%80%94%20Elite%20Recon%20Framework&descSize=20&descAlignY=60&descColor=00d4ff&animation=fadeIn" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d0d0d,50:00d4ff,100:7c3aed&height=200&section=header&text=ReconNinja&fontSize=80&fontColor=ffffff&fontAlignY=38&desc=v3.2.1%20%E2%80%94%20Elite%20Recon%20Framework&descSize=20&descAlignY=60&descColor=00d4ff&animation=fadeIn" />
 
 [![Python](https://img.shields.io/badge/Python-3.10+-FFD43B?style=for-the-badge&logo=python&logoColor=black)](https://python.org)
-[![Version](https://img.shields.io/badge/Version-3.2.0-00d4ff?style=for-the-badge&logo=buffer&logoColor=white)](https://github.com/YouTubers777/ReconNinja/releases)
+[![Version](https://img.shields.io/badge/Version-3.2.1-00d4ff?style=for-the-badge&logo=buffer&logoColor=white)](https://github.com/YouTubers777/ReconNinja/releases)
 [![License](https://img.shields.io/badge/License-MIT-7c3aed?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/YouTubers777/ReconNinja?style=for-the-badge&logo=github&color=ff6b6b&logoColor=white)](https://github.com/YouTubers777/ReconNinja/stargazers)
 [![CI](https://img.shields.io/github/actions/workflow/status/YouTubers777/ReconNinja/python-package-conda.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/YouTubers777/ReconNinja/actions)
@@ -29,7 +29,7 @@ Unauthorized use is illegal. The author is not responsible for misuse.
 
 ## 📋 Table of Contents
 
-- [What's New in v3.2](#-whats-new-in-v32)
+- [What's New in v3.2.1](#-whats-new-in-v321)
 - [Features](#-features)
 - [Pipeline](#-pipeline)
 - [Requirements](#-requirements)
@@ -48,15 +48,17 @@ Unauthorized use is illegal. The author is not responsible for misuse.
 
 ---
 
-## 🆕 What's New in v3.2
+## 🆕 What's New in v3.2.1
 
-| Feature | Description |
+> Bug fix release. All v3.2.0 features are intact — these are correctness fixes only.
+
+| Fix | Description |
 |---|---|
-| 🤖 **AI Threat Analysis** | Optional AI risk assessment via Groq (free), Ollama (local), Gemini, or OpenAI. Use `--ai --ai-provider groq --ai-key YOUR_KEY` |
-| 🔍 **CVE Lookup** | Auto-queries NVD for CVEs matching detected service versions after nmap `-sV`. Use `--cve` |
-| 💾 **--resume** | Saves phase-by-phase checkpoints. If scan crashes, resume from exactly where it stopped |
-| ⬆️ **--update** | One-command self-update from GitHub. Backs up current install, pulls latest, reinstalls deps |
-| 📊 **HTML Reports** | Professional dark-mode HTML report auto-generated every scan with dashboard, tables, and CVE links |
+| 🤖 **AI Analysis actually works** | `--ai` flag now correctly calls Groq/Ollama/Gemini/OpenAI via `core/ai_analysis.py`. Previously it silently used a rule-based fallback instead of the real LLM — the flag appeared to work but produced dummy output. |
+| 🔍 **`--cve` flag added** | README documented `--cve` but argparse only accepted `--cve-lookup`. Both flags now work. CVE lookup phase also now **actually executes** in the pipeline (it was stored in config but never called). |
+| 🔑 **`--nvd-key` wired** | `--nvd-key` was in the README and docs but missing from argparse and never passed to the CVE lookup module. Now correctly wired end-to-end. |
+| 💾 **`--resume` no longer crashes** | `orchestrate()` signature mismatch caused an immediate crash on every resume attempt. Fixed — resume now correctly restores state and skips completed phases. |
+| 🏷️ **Version banner corrected** | Internal docstring and banner said `v3.0` while `VERSION = "3.2.0"`. Now consistent at `3.2.1`. |
 
 ---
 
@@ -96,8 +98,8 @@ Unauthorized use is illegal. The author is not responsible for misuse.
 
 **🚨 Vulnerability Detection**
 - Nuclei — 9000+ vulnerability templates
-- **CVE Lookup** — NVD API, free, no key required
-- **AI Analysis** — Groq / Ollama / Gemini / OpenAI
+- **CVE Lookup** — NVD API, free, no key required (`--cve`)
+- **AI Analysis** — Groq / Ollama / Gemini / OpenAI (fixed in v3.2.1)
 - Screenshots via gowitness / aquatone
 
 </td>
@@ -115,7 +117,7 @@ Unauthorized use is illegal. The author is not responsible for misuse.
 <td>
 
 **⚙️ Quality of Life**
-- **--resume** — checkpoint-based scan recovery
+- **--resume** — checkpoint-based scan recovery (fixed in v3.2.1)
 - **--update** — self-update from GitHub
 - Plugin system — drop `.py` into `plugins/`
 - Interactive mode + full CLI mode
@@ -145,21 +147,23 @@ Target Input
 │  Phase 4  │  Nmap — service analysis on confirmed open ports    │
 │           │  nmap -sT -Pn -sV -sC -p<ports>                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 5  │  CVE Lookup — NVD API for each service+version      │
+│  Phase 4b │  CVE Lookup — NVD API for each service+version      │  ← fixed v3.2.1
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 6  │  httpx — live web detection + tech stack            │
+│  Phase 5  │  httpx — live web detection + tech stack            │
+├─────────────────────────────────────────────────────────────────┤
+│  Phase 6  │  Directory Brute Force (feroxbuster/ffuf/dirsearch) │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 7  │  WhatWeb — technology fingerprinting                │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 8  │  Directory Brute Force (feroxbuster/ffuf/dirsearch) │
+│  Phase 8  │  Nikto — web vulnerability scan                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 9  │  Nikto — web vulnerability scan                     │
+│  Phase 9  │  Nuclei — 9000+ vuln templates                      │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 10 │  Nuclei — 9000+ vuln templates                      │
+│  Phase 10 │  Screenshots (gowitness / aquatone)                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 11 │  Screenshots (gowitness / aquatone)                  │
+│  Phase 11 │  AI Threat Analysis (Groq / Ollama / Gemini)        │  ← fixed v3.2.1
 ├─────────────────────────────────────────────────────────────────┤
-│  Phase 12 │  AI Threat Analysis (Groq / Ollama / Gemini)        │
+│  Phase 12 │  Plugins                                            │
 ├─────────────────────────────────────────────────────────────────┤
 │  Phase 13 │  HTML + JSON + Markdown Report Generation           │
 └─────────────────────────────────────────────────────────────────┘
@@ -169,7 +173,7 @@ reports/<target>_<timestamp>/
     ├── report.html      ← dark-mode dashboard
     ├── report.json      ← structured data
     ├── report.md        ← markdown
-    ├── checkpoint.json  ← resume state
+    ├── state.json       ← resume checkpoint (saved after every phase)
     └── scan.log         ← full log
 ```
 
@@ -287,8 +291,11 @@ ReconNinja -t targets.txt --profile standard
 # Skip confirmation prompt (for scripts/automation)
 ReconNinja -t example.com --profile standard -y
 
-# Resume a crashed scan
+# Resume a crashed scan (auto-detect latest checkpoint)
 ReconNinja -t example.com --resume
+
+# Resume from a specific state file
+ReconNinja --resume reports/example.com/20240115_143022/state.json
 
 # Thorough scan, all ports
 ReconNinja -t example.com --profile thorough --all-ports
@@ -299,6 +306,8 @@ ReconNinja -t example.com --profile thorough --all-ports
 ## 🤖 AI Analysis
 
 AI analysis is **completely optional** — only activates when you pass `--ai`.
+
+> **v3.2.1 fix:** `--ai` now correctly calls the real LLM provider. In v3.2.0 the flag was silently ignored and a rule-based summary was generated instead.
 
 ### Supported Providers
 
@@ -380,6 +389,8 @@ ReconNinja -t target.com --ai --ai-provider gemini
 
 Automatically queries the [NVD (National Vulnerability Database)](https://nvd.nist.gov) for CVEs matching every service version nmap detects.
 
+> **v3.2.1 fix:** `--cve` flag now works (previously only `--cve-lookup` was accepted, contradicting the docs). CVE lookup phase also now executes correctly in the pipeline — in v3.2.0 it was configured but never called.
+
 ```bash
 # Enable CVE lookup
 ReconNinja -t target.com --cve
@@ -404,7 +415,7 @@ ReconNinja -t target.com --cve --ai --ai-provider groq --ai-key gsk_xxx
 ╚══════════════╩══════╩══════════╩════════════╩═════════════╝
 ```
 
-No API key required for basic usage. Rate limited to 5 requests/30 seconds.
+No API key required for basic usage. Rate limited to 5 requests/30 seconds without a key.
 
 ---
 
@@ -418,7 +429,7 @@ reports/
     ├── report.html       ← open this in your browser
     ├── report.json
     ├── report.md
-    ├── checkpoint.json
+    ├── state.json        ← resume checkpoint
     └── scan.log
 ```
 
@@ -440,7 +451,9 @@ ReconNinja -t target.com --no-html-report
 
 ## 💾 Resume Scans
 
-If a scan crashes or you kill it mid-way, resume from exactly where it stopped:
+If a scan crashes or you kill it mid-way, resume from exactly where it stopped. State is saved to `state.json` after **every phase** completes.
+
+> **v3.2.1 fix:** `--resume` no longer crashes immediately due to a function signature mismatch that existed in v3.2.0.
 
 ```bash
 # Original command
@@ -448,20 +461,25 @@ ReconNinja -t example.com --profile full_suite
 
 # ... scan crashes during nuclei phase ...
 
-# Resume — skips all completed phases, continues from crash point
+# Option 1: auto-detect latest checkpoint for target (recommended)
 ReconNinja -t example.com --resume
+
+# Option 2: point directly at a specific state file
+ReconNinja --resume reports/example.com/20240115_143022/state.json
 ```
 
-ReconNinja saves a `checkpoint.json` after each phase completes:
+ReconNinja saves a `state.json` after each phase completes:
 
 ```json
 {
-  "target": "example.com",
-  "profile": "full_suite",
-  "phases_completed": ["subdomains", "rustscan", "async_tcp", "nmap", "cve"],
-  "open_ports": [22, 80, 443, 8080],
-  "subdomains": ["www.example.com", "mail.example.com"],
-  "last_updated": "2024-01-15 14:32:01"
+  "version": "3.2.1",
+  "config": { "target": "example.com", "profile": "full_suite", "..." },
+  "result": {
+    "phases_completed": ["passive_recon", "rustscan", "async_tcp_scan", "nmap", "cve_lookup"],
+    "open_ports": [22, 80, 443, 8080],
+    "subdomains": ["www.example.com", "mail.example.com"]
+  },
+  "out_folder": "reports/example.com/20240115_143022"
 }
 ```
 
@@ -540,17 +558,21 @@ FEATURE FLAGS
   --aquatone            Enable screenshots
 
 AI ANALYSIS (optional)
-  --ai                  Enable AI threat analysis
+  --ai                  Enable AI threat analysis (fixed in v3.2.1)
   --ai-provider         groq|ollama|gemini|openai (default: groq)
   --ai-key              API key (or set GROQ_API_KEY env var)
   --ai-model            Override AI model name
 
 CVE LOOKUP
-  --cve                 Enable NVD CVE lookup for detected services
-  --nvd-key             Optional NVD API key (higher rate limit)
+  --cve                 Enable NVD CVE lookup for detected services (fixed in v3.2.1)
+  --cve-lookup          Alias for --cve (backwards compatibility)
+  --nvd-key             Optional NVD API key — raises rate limit from 5 to 50 req/30s
+                        Free key: nvd.nist.gov/developers/request-an-api-key
 
 RESUME / PERSISTENCE
-  --resume              Resume an interrupted scan from checkpoint
+  --resume [STATE_FILE] Resume an interrupted scan. Omit path to auto-detect latest
+                        checkpoint for --target. Or pass exact path to state.json.
+                        (fixed in v3.2.1)
 
 SELF-UPDATE
   --update              Update to latest version from GitHub
@@ -588,13 +610,13 @@ ReconNinja/
 │   ├── subdomains.py       # Subdomain enumeration
 │   ├── web.py              # httpx, WhatWeb, Nikto, dir scan
 │   ├── vuln.py             # Nuclei, aquatone, gowitness
-│   ├── ai_analysis.py      # AI threat analysis (v3.2)
-│   ├── cve_lookup.py       # NVD CVE lookup (v3.2)
-│   ├── resume.py           # Checkpoint / resume (v3.2)
-│   └── updater.py          # Self-update from GitHub (v3.2)
+│   ├── ai_analysis.py      # AI threat analysis — Groq/Ollama/Gemini/OpenAI
+│   ├── cve_lookup.py       # NVD CVE lookup
+│   ├── resume.py           # Checkpoint / resume
+│   └── updater.py          # Self-update from GitHub
 │
 ├── output/
-│   ├── report_html.py      # HTML report generator (v3.2)
+│   ├── report_html.py      # HTML report generator
 │   ├── reports.py          # JSON + Markdown reports
 │   └── reports/            # Generated scan output
 │
@@ -608,12 +630,25 @@ ReconNinja/
 └── tests/
     ├── conftest.py
     ├── test_models.py
-    └── test_ports.py
+    ├── test_ports.py
+    ├── test_ai_analysis.py
+    ├── test_cve_lookup.py
+    ├── test_resume.py
+    └── test_report_html.py
 ```
 
 ---
 
 ## 📝 Changelog
+
+### v3.2.1 — Bug Fix Release
+- ✅ **AI Analysis fixed** — `--ai` now calls the real LLM (Groq/Ollama/Gemini/OpenAI). v3.2.0 was silently using a rule-based fallback for all users regardless of the flag.
+- ✅ **`--cve` flag fixed** — `--cve` now accepted by argparse (previously only `--cve-lookup` worked, breaking the documented interface). Both flags accepted for backwards compatibility.
+- ✅ **CVE phase now executes** — CVE lookup was configured but never invoked in the orchestrator pipeline. Now runs as Phase 4b after Nmap.
+- ✅ **`--nvd-key` fixed** — flag was in the README but missing from argparse and never passed to the CVE module. Now fully wired.
+- ✅ **`--resume` fixed** — orchestrate() signature mismatch caused an immediate crash on any resume attempt. Fixed with correct kwargs.
+- ✅ **Version banner corrected** — internal docstring said v3.0 while VERSION was 3.2.0. Now consistent at 3.2.1.
+- ✅ **State saves after every phase** — `save_state()` now called after each phase completes, ensuring reliable resume from any crash point.
 
 ### v3.2.0
 - ✅ **AI Analysis** — Groq (free), Ollama (local), Gemini, OpenAI via `--ai`
