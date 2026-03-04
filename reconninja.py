@@ -69,7 +69,7 @@ from utils.helpers import is_valid_target
 from utils.logger import console, log
 from utils.models import ScanConfig, ScanProfile, NmapOptions
 from core.orchestrator import orchestrate, print_tool_status
-from utils.update import run_update, check_latest_version
+from core.updater import run_update, print_update_status
 
 APP_NAME = "ReconNinja"
 VERSION  = "3.2.0"

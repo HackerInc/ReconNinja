@@ -187,3 +187,14 @@ def run_update(force: bool = False) -> bool:
     console.print(f"\n[green bold]  ✔  Updated to {tag} successfully![/]")
     console.print(f"  Run [cyan]ReconNinja --check-tools[/cyan] to verify everything works.\n")
     return True
+
+def print_update_status():
+    current = _get_current_version()
+    latest, _ = _get_latest_release()
+    print(f"  Installed : v{current}")
+    print(f"  Latest    : v{latest}")
+    if current != latest:
+        print(f"  Run: ReconNinja --update")
+    else:
+        print("  Status    : Up to date")
+
