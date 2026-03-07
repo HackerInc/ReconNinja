@@ -28,11 +28,8 @@ ReconNinja automates every phase of a reconnaissance engagement into a single co
 # From GitHub (always latest)
 pip install git+https://github.com/ExploitCraft/ReconNinja.git
 
-# With AI support (Groq, Gemini, OpenAI)
-pip install "git+https://github.com/ExploitCraft/ReconNinja.git[ai]"
-
-# Full — includes Shodan
-pip install "git+https://github.com/ExploitCraft/ReconNinja.git[full]"
+# From PIP
+pip install reconnninja
 
 # From source
 git clone https://github.com/ExploitCraft/ReconNinja.git
