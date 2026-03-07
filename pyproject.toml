@@ -1,9 +1,9 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "reconinja"
+name = "reconninja"
 version = "4.0.0"
 description = "14-phase automated reconnaissance framework for security researchers"
 readme = "README.md"
